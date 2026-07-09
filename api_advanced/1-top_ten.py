@@ -6,18 +6,16 @@ import time
 
 def top_ten(subreddit):
     """Print the titles of the first 10 hot posts, or None if invalid."""
-    url = "https://www.reddit.com/r/{}/hot.json".format(subreddit)
-    headers = {"User-Agent": "python3:api.advanced.top_ten:v3 (by /u/joeb_dev)"}
-    params = {"limit": 10}
-    for _ in range(6):
-        response = requests.get(url, headers=headers, params=params,
-                                allow_redirects=False)
-        if response.status_code == 200:
-            data = response.json().get("data", {})
-            for post in data.get("children", []):
+    url = "https://www.reddit.com/r/{}/hot.json?limit=10".format(subreddit)
+    headers = {"User-Agent": "alu-top-ten:v4 (by /u/joeb_dev)"}
+    for _ in range(3):
+        r = requests.get(url, headers=headers, allow_redirects=False)
+        if r.status_code == 200:
+            posts = r.json().get("data", {}).get("children", [])
+            for post in posts:
                 print(post.get("data", {}).get("title"))
             return
-        if response.status_code in (301, 302, 404):
+        if r.status_code != 429:
             break
         time.sleep(1)
     print(None)
